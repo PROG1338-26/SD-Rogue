@@ -1,6 +1,8 @@
 using RogueLib.Dungeon;
 using RogueLib.Engine;
 using RogueLib.Utilities;
+using SandBox01.Levels;
+using System.Xml.Serialization;
 using TileSet = System.Collections.Generic.HashSet<RogueLib.Utilities.Vector2>;
 
 namespace RlGameNS;
@@ -36,19 +38,35 @@ public class Level : Scene {
    protected TileSet _discovered; // tiles the player has seen
    protected TileSet _inFov;      // current fov of player
 
-   public Level(Player p, string map, Game game) {
+    protected List<Item> _items; // items on the level
+
+    public Level(Player p, string map, Game game) {
       if (game == null || p == null || map == null)
          throw new ArgumentNullException("game, player, or map cannot be null");
 
       _player     = p;
       _player.Pos = new Vector2(4, 12); // random, or at stairs
       _map        = map;
-      _game       = _game;
+      _game       = game;
+      _items      = new List<Item>();
 
       initMapTileSets(map);
       updateDiscovered();
       registerCommandsWithScene();
+      SpreadGold();
    }
+
+    private CodeIdentifier SpreadGold() {
+
+        var rng = new Random();
+        var hm = rng.Next(10, 20);
+        for (int i=0; i <hm; i++)
+        {
+            var pos = _floor.ElementAt(rng.Next(_floor.Count));
+            _items.Add(new Gold( pos, rng.Next(100, 200)));
+        }
+       
+    } 
 
    protected void updateDiscovered() {
       _inFov = fovCalc(_player!.Pos, _senseRadius);
@@ -107,7 +125,15 @@ public class Level : Scene {
 
 // -------------------------------------------------------------------------
 
-   private void drawItems(IRenderWindow disp) { }
+
+   private void drawItems(IRenderWindow disp) { 
+    
+
+        foreach (var item in _items) {
+            if(_discovered.Contains(item.Pos))
+        disp.Draw(item.Glyph, item.Pos, ConsoleColor.Yellow);
+        }
+    }
 
    private void drawEnemies(IRenderWindow disp) { }
 

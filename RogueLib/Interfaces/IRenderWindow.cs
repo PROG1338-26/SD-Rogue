@@ -8,6 +8,8 @@ public interface IRenderWindow {
    void Draw(string s,     Vector2      offset, ConsoleColor color);
    void Draw(char   glyph, Vector2      pos,    ConsoleColor color);
 
+
    void fDraw(FilterSet fs, string s, ConsoleColor color);
-   void Display();
+   
+    void Display();
 }
