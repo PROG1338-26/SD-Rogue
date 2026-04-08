@@ -1,5 +1,6 @@
 namespace RogueLib.Dungeon;
 
-public class IActor {
+public interface IActor {
+  void Update();
   char Glyph { get; }
 }
