@@ -16,10 +16,11 @@ namespace RlGameNS;
 // A dungeon level is a collection or rooms and tunnels in a 78x25 grid. 
 // each tile is at a point, or grid location, represented by a Vector2. 
 // 
-// *TileSets* are HashSets of grid points, TileSets can be used to tell 
+// *TileSets* are HashSets of grid points, TileSets can be used to tell   
 // GameScreen what tiles to draw. TileSets can be combined with Union and 
 // Intersect to create complex tile sets.
 // -----------------------------------------------------------------------
+
 public class Level : Scene {
    // ---- level config ---- 
    protected string? _map;
@@ -164,11 +165,11 @@ public class Level : Scene {
       RegisterCommand(ConsoleKey.S, "down");
       RegisterCommand(ConsoleKey.J, "down");
 
-      RegisterCommand(ConsoleKey.DownArrow, "left");
+      RegisterCommand(ConsoleKey.LeftArrow, "left");
       RegisterCommand(ConsoleKey.A, "left");
       RegisterCommand(ConsoleKey.H, "left");
 
-      RegisterCommand(ConsoleKey.DownArrow, "right");
+      RegisterCommand(ConsoleKey.RightArrow, "right");
       RegisterCommand(ConsoleKey.D, "right");
       RegisterCommand(ConsoleKey.L, "right");
 
