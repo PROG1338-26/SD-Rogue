@@ -16,7 +16,7 @@ namespace RlGameNS;
 // A dungeon level is a collection or rooms and tunnels in a 78x25 grid. 
 // each tile is at a point, or grid location, represented by a Vector2. 
 // 
-// *TileSets* are HashSets of grid points, TileSets can be used to tell 
+// *TileSets* are HashSets of grid points, TileSets can be used to tell   
 // GameScreen what tiles to draw. TileSets can be combined with Union and 
 // Intersect to create complex tile sets.
 // -----------------------------------------------------------------------
