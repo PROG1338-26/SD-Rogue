@@ -20,7 +20,7 @@ namespace RogueLib.Utilities;
 // ==============================================================
 public class ScreenBuff : IRenderWindow {
    // statics and constants
-   protected const ConsoleColor _notAColor = (ConsoleColor)(-1); // -1 is sentinal value
+   private const ConsoleColor _notAColor = (ConsoleColor)(-1); // -1 is sentinal value
 
    // fields
    private readonly int             _width;
