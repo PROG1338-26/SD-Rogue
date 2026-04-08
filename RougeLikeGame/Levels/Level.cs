@@ -164,11 +164,11 @@ public class Level : Scene {
       RegisterCommand(ConsoleKey.S, "down");
       RegisterCommand(ConsoleKey.J, "down");
 
-      RegisterCommand(ConsoleKey.DownArrow, "left");
+      RegisterCommand(ConsoleKey.LeftArrow, "left");
       RegisterCommand(ConsoleKey.A, "left");
       RegisterCommand(ConsoleKey.H, "left");
 
-      RegisterCommand(ConsoleKey.DownArrow, "right");
+      RegisterCommand(ConsoleKey.RightArrow, "right");
       RegisterCommand(ConsoleKey.D, "right");
       RegisterCommand(ConsoleKey.L, "right");
 
