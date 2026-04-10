@@ -25,6 +25,7 @@ public abstract class Player : IActor, IDrawable {
       Pos  = Vector2.Zero;
    }
 
+
    public string HUD =>
       $"Level:{_level}  Gold: {_gold}    Hp: {_hp}({_maxHp})" +
       $"  Str: {_str}({_maxStr})" +
@@ -38,4 +39,16 @@ public abstract class Player : IActor, IDrawable {
    public virtual void Draw(IRenderWindow disp) {
       disp.Draw(Glyph, Pos, _color);
    }
+
+    public List<string> Messages { get; private set; } = new();
+
+    // Add a message to the player's message list
+    public void AddMessage(string msg)
+    {
+        Messages.Add(msg);
+
+        // keep only last 5 messages (or whatever you want)
+        if (Messages.Count > 5)
+            Messages.RemoveAt(0);
+    }
 }

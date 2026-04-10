@@ -86,8 +86,11 @@ public class Level : Scene {
         var item = _items.Find(i => i.Pos == _player!.Pos);
 
         if (item is not null && item is Gold gold)
+        {
             _player!._gold += gold.Amount;
-        _items.Remove(item); // Remove the item from the level after picking it up
+            _items.Remove(item); // Remove the item from the level after picking it up
+            _player.AddMessage($"You pick up {gold.Amount} gold.");
+        }
 
         _player!.Update();
 
@@ -113,7 +116,15 @@ public class Level : Scene {
       // disp.Draw(_player!.Glyph, _player!.Pos, ConsoleColor.Cyan);
 
       drawEnemies(disp);
-      disp.Draw(_player.HUD, new Vector2(0, 24), ConsoleColor.Green);
+        // Author: Joshua Watson
+        // Draw player messages and HUD
+        int line = 22; 
+      foreach (var msg in _player.Messages)
+      {
+          disp.Draw(msg, new Vector2(0, line), ConsoleColor.White);
+          line++;
+      }
+        disp.Draw(_player.HUD, new Vector2(0, 21), ConsoleColor.Green);
    }
 
    public override void DoCommand(Command command) {
