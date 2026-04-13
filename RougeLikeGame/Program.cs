@@ -42,22 +42,19 @@ class Program
                 case "(1) New Game:":
                     AnsiConsole.MarkupLine("[green]Starting new game...[/]");
                     try { System.Threading.Thread.Sleep(700); } catch { }
-                  
-                        Console.Write("Enter class name: ");
-                        string option = Console.ReadLine();
-
-                    // Show class list
                     var Choice = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("Choose your class:")
                             .AddChoices(RogueFactory.GetOptions())
                     );
+
                     Player chosen = RogueFactory.Create(Choice);
 
                     Console.WriteLine($"You selected: {Choice}");
                     try { System.Threading.Thread.Sleep(700); } catch { }
                     Console.Clear();
-                    Game game = new MyGame();
+                    Player player = RogueFactory.Create(Choice);
+                    Game game = new MyGame(chosen);
                     game.run();
                     break;
                 case "(2) Load Game":
@@ -81,12 +78,11 @@ class Program
                             break;
                         }
 
-                        var player = RogueFactory.Create(classChoice);
-                        if (player is RogueClass rc)
+                        var Player = RogueFactory.Create(classChoice);
+                        if (Player is RogueClass rc)
                             AnsiConsole.MarkupLine($"Selected: [green]{rc.Name}[/] - {rc.Description} - {rc.HUD}");
                         else
-                            AnsiConsole.MarkupLine($"Selected: [green]{player.Name}[/] - {player.HUD}");
-
+                            AnsiConsole.MarkupLine($"Selected: [green]{Player.Name}[/] - {Player.HUD}");
                         AnsiConsole.MarkupLine("Press any key to go back.");
                         Console.ReadKey(true);
                         Console.Clear();

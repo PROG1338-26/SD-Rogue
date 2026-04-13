@@ -49,7 +49,6 @@ public class Level : Scene
     {
         if (game == null || p == null || map == null)
             throw new ArgumentNullException("game, player, or map cannot be null");
-
         _player = p;
         _player.Pos = new Vector2(4, 12);
         _map = map;
@@ -62,8 +61,15 @@ public class Level : Scene
         SpreadTheXP();
         SpreadTheItems();
         SpreadTheEnemies();
+        ClearMessageLine();
+        
     }
-
+    private void ClearMessageLine()
+    {
+        Console.SetCursorPosition(0, 23);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, 23);
+    }
     private void SpreadTheGold()
     {
         var rng = new Random();
@@ -73,6 +79,15 @@ public class Level : Scene
             var pos = _floor.ElementAt(rng.Next(_floor.Count));
             _items.Add(new Gold(pos, rng.Next(100, 200)));
         }
+    }
+
+    private void PrintMessage(string msg)
+    {
+        int line = 23; // one line above HUD
+        Console.SetCursorPosition(0, line);
+        Console.Write(new string(' ', Console.WindowWidth)); // clear
+        Console.SetCursorPosition(0, line);
+        Console.Write(msg);
     }
 
     private void SpreadTheItems()
@@ -93,7 +108,7 @@ public class Level : Scene
 
         for (int i = 0; i < howMuch; i++)
         {
-            var pos = _floor.ElementAt(rng.Next(_floor.Count));
+            var pos = _walkables.ElementAt(rng.Next(_walkables.Count));
 
             var gob = new Goblin(pos, "Goblin", 10);
             gob.PlayerRef = _player;
@@ -261,6 +276,7 @@ public class Level : Scene
 
     private void RemoveItem(Item item)
         => _items.Remove(item);
+
     // ------------------------------------------------------
     // Commands 
     // ------------------------------------------------------
@@ -273,7 +289,8 @@ public class Level : Scene
         {
             player.Inventory.Add(item);
             RemoveItem(item);
-            AnsiConsole.MarkupLine($"[yellow]Picked up {item.Name}![/]");
+            ClearMessageLine();
+            PrintMessage($"Picked up {item.Name}!");
         }
     }
 
@@ -307,11 +324,13 @@ public class Level : Scene
         if (enemy != null)
         {
             enemy.TakeDamage(_player.Strength);
-            Console.WriteLine($"You hit the {enemy.Name}!");
+            ClearMessageLine();
+            PrintMessage($"You hit the {enemy.Name}!");
 
             if (enemy.HP <= 0)
             {
-                Console.WriteLine($"{enemy.Name} dies!");
+                ClearMessageLine();
+                PrintMessage($"{enemy.Name} dies!");
                 _npcsList.Remove(enemy);
                 _player.AddExp(5);
             }
@@ -335,19 +354,19 @@ public class Level : Scene
                 {
                     _player!.AddGold(g.Amount);  
                     _items.Remove(item);
-                    Console.WriteLine($"Picked up {g.Amount} gold.");
+                    PrintMessage($"Picked up {g.Amount} gold.");
                 }
                 else if (item is XP xp)
                 {
                     _player!.AddExp(xp.Amount);
                     _items.Remove(item);
-                    Console.WriteLine($"Picked up {xp.Amount} XP.");
+                    PrintMessage($"Picked up {xp.Amount} XP.");
                 }
                 else
                 {
                     _player!.Add(item);
                     _items.Remove(item);
-                    Console.WriteLine($"Picked up {item.Name}.");
+                    PrintMessage($"Picked up {item.Name}.");
                 }
             }
         }

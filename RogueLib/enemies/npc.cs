@@ -24,7 +24,7 @@ namespace RogueLib.enemies
             HP = hp;
             Damage = damage;
         }
-
+    
         public virtual void Update()
         {
             var rng = new Random();

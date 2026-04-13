@@ -14,9 +14,9 @@ public class MyGame : Game
 {
     private Player _player;
 
-    public MyGame(Player player)
+    public MyGame(Player p)
     {
-        _player = player;
+        init(p);
     }
     private void init(Player? chosenPlayer = null)
     {
@@ -28,7 +28,8 @@ public class MyGame : Game
         // the level switching. 
 
         _window = new ScreenBuff();
-        _player = new Rogue();
+        if (chosenPlayer != null)
+            _player = chosenPlayer;
         _currentLevel = new Level(_player!, map1, this);
 
     }

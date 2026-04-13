@@ -5,9 +5,12 @@ public abstract class RogueClass : Player {
     public string ClassName { get; }
     public string Description { get; }
 
-    protected RogueClass(string name, string description, int hp, int str, int arm) {
+    protected RogueClass(string name, string description, int hp, int str, int arm)
+      : base(name, name)
+    {
         ClassName = name;
         Description = description;
+
         _maxHp = hp;
         _hp = hp;
         _maxStr = str;
@@ -15,6 +18,7 @@ public abstract class RogueClass : Player {
         _arm = arm;
         Name = name;
     }
+
 
     public override string ToString() => $"{ClassName}: {Description} (HP:{_hp}, Str:{_str}, Arm:{_arm})";
 }
