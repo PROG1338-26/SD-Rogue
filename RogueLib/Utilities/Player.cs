@@ -91,8 +91,8 @@ public abstract class Player : IActor, IDrawable
         }
     }
 
+    public abstract void ShowInventory();
 
- 
     public string? RogueClass { get; set; }
     public int Strength => _str;
 

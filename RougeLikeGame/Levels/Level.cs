@@ -6,7 +6,8 @@ using RougeLikeGame.Levels;
 using SandBox01;
 using Spectre.Console;
 using TileSet = System.Collections.Generic.HashSet<RogueLib.Utilities.Vector2>;
-
+using System.Collections.Generic;
+using System.Linq;
 namespace RlGameNS;
 // -----------------------------------------------------------------------
 // The Level is the model, all the game world objects live in the model. 
@@ -367,7 +368,7 @@ public class Level : Scene
         var item = GetItemAt(newPos);
         if (item != null)
         {
-            player.Inventory.Add(item);
+            player.ShowInventory();
             RemoveItem(item);
             ClearMessageLine();
             PrintMessage($"Picked up {item.Name}!");
@@ -444,7 +445,7 @@ public class Level : Scene
                 }
                 else
                 {
-                    _player!.Add(item);
+                    _player!.ShowInventory();
                     _items.Remove(item);
                     PrintMessage($"Picked up {item.Name}.");
                 }

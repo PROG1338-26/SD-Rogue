@@ -1,5 +1,4 @@
 
-
 using RogueLib.Dungeon;
 
 namespace RogueLib.Utilities;
@@ -42,7 +41,7 @@ public abstract class RogueClass : Player {
             Thread.Sleep(30);
         }
     }
-    public void ShowInventory()
+    public override void ShowInventory()
     {
         int start = 5;
         ConsoleKey key;
