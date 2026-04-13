@@ -30,6 +30,8 @@ public class MyGame : Game
         _window = new ScreenBuff();
         if (chosenPlayer != null)
             _player = chosenPlayer;
+        while (true)
+            HandleUserInput();
         _currentLevel = new Level(_player!, map1, this);
 
     }
@@ -38,31 +40,31 @@ public class MyGame : Game
     {
         init();
     }
-    public void ShowInventory()
-    {
-        try { Console.SetCursorPosition(0, 0); } catch { }
-        Console.Clear();
-        AnsiConsole.MarkupLine("[yellow]Inventory:[/]");
-        AnsiConsole.MarkupLine($"[green]Gold:[/] {_player.Gold}");
-        AnsiConsole.MarkupLine($"[green]XP:[/] {_player.Exp}");
+    //public void ShowInventory()
+    //{
+    //    try { Console.SetCursorPosition(0, 0); } catch { }
+    //    Console.Clear();
+    //    AnsiConsole.MarkupLine("[yellow]Inventory:[/]");
+    //    AnsiConsole.MarkupLine($"[green]Gold:[/] {_player.Gold}");
+    //    AnsiConsole.MarkupLine($"[green]XP:[/] {_player.Exp}");
 
-        if (_player.Items.Count != 0)
-        {
-            foreach (var item in _player.Items)
-            {
-                AnsiConsole.MarkupLine($"- {item.Name}: {item.Description}");
-            }
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[grey]Your inventory is empty.[/]");
-        }
+    //    if (_player.Items.Count != 0)
+    //    {
+    //        foreach (var item in _player.Items)
+    //        {
+    //            AnsiConsole.MarkupLine($"- {item.Name}: {item.Description}");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        AnsiConsole.MarkupLine("[grey]Your inventory is empty.[/]");
+    //    }
 
-        AnsiConsole.MarkupLine("[grey]Press any key to go back.[/]");
-        Console.ReadKey(true);
-        try { Console.SetCursorPosition(0, 0); } catch { }
-        Console.Clear();
-    }
+    //    AnsiConsole.MarkupLine("[grey]Press any key to go back.[/]");
+    //    Console.ReadKey(true);
+    //    try { Console.SetCursorPosition(0, 0); } catch { }
+    //    Console.Clear();
+    //}
     private record GameDTO
     {
         public string PlayerName { get; init; }

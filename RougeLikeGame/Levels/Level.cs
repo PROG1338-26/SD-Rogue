@@ -29,7 +29,8 @@ public class Level : Scene
     // ---- level config ---- 
     protected string? _map;
     protected int _senseRadius = 4;
-
+    private readonly Queue<string> _messageLog = new Queue<string>();
+    private const int MaxMessages = 5;
     // --- Tile Sets ----- 
     protected TileSet _walkables; // used to keep track of state of tiles on the map
     protected TileSet _floor;// walkable tiles 
@@ -45,15 +46,20 @@ public class Level : Scene
     protected List<Item> _items;
     private List<NPC> _npcsList = new List<NPC>();
 
-    public Level(Player p, string map, Game game)
+    public string Map1 { get; }
+    public MyGame MyGame { get; }
+
+    public Level(RogueLib.Utilities.Player p, string map, Game game, IRenderWindow window)
     {
-        if (game == null || p == null || map == null)
-            throw new ArgumentNullException("game, player, or map cannot be null");
+        if (game == null || p == null || map == null || window == null)
+            throw new ArgumentNullException("game, player, map, or window cannot be null");
         _player = p;
         _player.Pos = new Vector2(4, 12);
         _map = map;
+        window = window;
         _game = game;
         _items = new List<Item>();
+        _inFov = new TileSet();
         initMapTileSets(map);
         updateDiscovered();
         registerCommandsWithScene();
@@ -64,7 +70,41 @@ public class Level : Scene
         ClearMessageLine();
         
     }
-    private void ClearMessageLine()
+
+    public Level(Player player, string map1, MyGame myGame)
+    {
+        _player = player;
+        Map1 = map1;
+        MyGame = myGame;
+    }
+
+    private void ClearInventoryPanel()//helper method 4
+    {
+        for (int row = 5; row <= 20; row++)
+        {
+            Console.SetCursorPosition(0, row);
+            Console.Write(new string(' ', Console.WindowWidth));
+        }
+    }
+    //private void DrawMessageLog(IRenderWindow disp)
+    //{
+    //    int startLine = 19; // 19–23 = 5 lines
+    //    int i = 0;
+
+    //    foreach (var msg in _messageLog)
+    //    {
+    //        disp.Draw(msg, new Vector2(0, startLine + i), ConsoleColor.Yellow);
+    //        i++;
+    //    }
+    //}
+    private void AddMessage(string msg)//helper method 3
+    {
+        if (_messageLog.Count >= MaxMessages)
+            _messageLog.Dequeue();
+
+        _messageLog.Enqueue(msg);
+    }
+    private void ClearMessageLine()//helper method 1
     {
         Console.SetCursorPosition(0, 23);
         Console.Write(new string(' ', Console.WindowWidth));
@@ -81,7 +121,7 @@ public class Level : Scene
         }
     }
 
-    private void PrintMessage(string msg)
+    private void PrintMessage(string msg)//helper method 2
     {
         int line = 23; // one line above HUD
         Console.SetCursorPosition(0, line);
@@ -172,7 +212,8 @@ public class Level : Scene
     {
         var tilesToDraw = new TileSet(_decor);
         tilesToDraw.IntersectWith(_discovered);
-        tilesToDraw.UnionWith(_inFov);
+        if (_inFov != null)
+            tilesToDraw.UnionWith(_inFov);
 
         disp.fDraw(tilesToDraw, _map, ConsoleColor.Gray);
         // disp.Draw(_player!.Glyph, _player!.Pos, ConsoleColor.Cyan);
@@ -183,7 +224,8 @@ public class Level : Scene
         _player!.Draw(disp);
 
         drawItems(disp);
-        DrawEnemies(disp);
+        if (_inFov != null)
+            DrawEnemies(disp);
         // draw only items that are currently in the player's field-of-view
         disp.Draw(_player.HUD, new Vector2(0, 24), ConsoleColor.Green);
     }
@@ -197,7 +239,9 @@ public class Level : Scene
         else if (command.Name == "right") MovePlayer(Vector2.E);
         else if (command.Name == "inventory")
         {
-            try { _player?.ShowInventory(); } catch { }
+            _player?.ShowInventory();
+            ClearInventoryPanel();
+            Draw(_game.Window);
         }
         else if (command.Name == "quit")
         {
@@ -223,15 +267,13 @@ public class Level : Scene
             _levelActive = false;
         }
     }
-
     private void drawItems(IRenderWindow disp)
     {
         if (_inFov is null) return;
 
         foreach (var item in _items.Where(it => _inFov.Contains(it.Pos)))
             item.Draw(disp);
-    }
-   
+    }   
     private void initMapTileSets(string map)
     {
         // ------ rules for map ------
@@ -270,10 +312,8 @@ public class Level : Scene
         //         }
         //      }
     }
-
     private Item? GetItemAt(Vector2 pos)
         => _items.FirstOrDefault(i => i.Pos.Equals(pos));
-
     private void RemoveItem(Item item)
         => _items.Remove(item);
 

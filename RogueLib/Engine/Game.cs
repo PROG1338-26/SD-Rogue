@@ -22,8 +22,8 @@ public class Game {
    protected bool           _isQuit;
    protected IRenderWindow? _window;
    protected Player?        _player;
-
-   public Game() {
+   public IRenderWindow Window => _window;
+    public Game() {
       _isQuit = false;
    }
 
@@ -53,7 +53,9 @@ public class Game {
 
 
    protected virtual void HandleUserInput() {
-      ConsoleKeyInfo key = Console.ReadKey(true);
+        if (_currentLevel == null)
+            return;
+        ConsoleKeyInfo key = Console.ReadKey(true);
       if (_currentLevel!.HasCommand(key.Key))
          _currentLevel!.DoCommand(new Command(_currentLevel!.GetCommand(key.Key)));
    }

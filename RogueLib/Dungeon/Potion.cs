@@ -17,6 +17,6 @@ namespace RougeLikeGame.Levels
 
         public override string Name => PotionName;
 
-        public override string Description => "A potion that restores health.";
+        public override string Description => "healing.";
     }
 }

@@ -2,7 +2,7 @@ using RogueLib.Dungeon;
 
 namespace RogueLib.Utilities;
 
-public abstract class Player :  IActor, IDrawable  
+public abstract class Player : IActor, IDrawable
 {
 
 
@@ -20,6 +20,7 @@ public abstract class Player :  IActor, IDrawable
     protected int _maxHp = 12;
     protected int _maxStr = 16;
     protected int _turn = 0;
+    private int _selectedIndex;
 
     public int Turn => _turn;
     public Player(string name, string className)
@@ -33,14 +34,16 @@ public abstract class Player :  IActor, IDrawable
        $"  Str: {_str}({_maxStr})" +
        $"  Arm: {_arm}   Exp: {_exp}/{10} Turn: {_turn}";
 
-   // expose gold for saving/loading
-   public int Gold {
-      get => _gold;
-      set => _gold = value;
-   }
-   public int Exp {
-      get => _exp;
-      set => _exp = value;
+    // expose gold for saving/loading
+    public int Gold
+    {
+        get => _gold;
+        set => _gold = value;
+    }
+    public int Exp
+    {
+        get => _exp;
+        set => _exp = value;
     }
 
     public void AddGold(int amount)
@@ -102,23 +105,80 @@ public abstract class Player :  IActor, IDrawable
     public string? RogueClass { get; set; }
     public int Strength => _str;
     public Inventory Inventory => _inventory;
-
     public void ShowInventory()
     {
-        Console.Clear();
-        Console.WriteLine("Inventory:");
+        int start = 5;
+        ConsoleKey key;
+
+        do
+        {
+            DrawInventoryWindow(start);
+
+            key = Console.ReadKey(true).Key;
+
+            if (key == ConsoleKey.UpArrow && _selectedIndex > 0)
+                _selectedIndex--;
+
+            if (key == ConsoleKey.DownArrow && _selectedIndex < Items.Count - 1)
+                _selectedIndex--;
+
+            if (key == ConsoleKey.DownArrow && _selectedIndex < Items.Count - 1)
+                _selectedIndex++;
+
+            if (key == ConsoleKey.Enter && Items.Count > 0)
+            {
+                // Example action — you can expand this later
+                Console.SetCursorPosition(0, start + 16);
+                Console.WriteLine($"You selected: {Items[_selectedIndex].Name}");
+                Console.ReadKey(true);
+            }
+
+        } while (key != ConsoleKey.Escape);
+    }
+    private void DrawInventoryWindow(int start)
+    {
+        Console.SetCursorPosition(0, start);
+        Console.WriteLine("┌──────────────────────────────────────────┐");
+        Console.SetCursorPosition(0, start + 1);
+        Console.WriteLine("│              === INVENTORY ===           │");
+
+        int line = start + 3;
+
         if (Items.Count == 0)
         {
-            Console.WriteLine(" - (empty)");
+            Console.SetCursorPosition(0, line);
+            Console.WriteLine("│                 (empty)                  │");
+            line++;
         }
-        else if (Items.Count > 0)
+        else
         {
             for (int i = 0; i < Items.Count; i++)
             {
-                Console.WriteLine($" {i + 1}. {Items[i].Name}: {Items[i].Description}");
+                Console.SetCursorPosition(0, line);
+
+                bool selected = (i == _selectedIndex);
+
+                if (selected)
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+
+                Console.WriteLine($"│ {(selected ? ">" : " ")} {Items[i].Name,-20} {Items[i].Description,-15} │");
+
+                Console.ResetColor();
+                line++;
             }
         }
-        Console.WriteLine("\nPress any key to continue...");
-        Console.ReadKey(true);
+
+        while (line < start + 14)
+        {
+            Console.SetCursorPosition(0, line);
+            Console.WriteLine("│                                          │");
+            line++;
+        }
+
+        Console.SetCursorPosition(0, start + 14);
+        Console.WriteLine("└──────────────────────────────────────────┘");
+
+        Console.SetCursorPosition(0, start + 16);
+        Console.WriteLine("Use ↑ ↓ to navigate, Enter to select, Esc to exit.");
     }
 }
