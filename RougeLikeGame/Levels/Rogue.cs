@@ -61,7 +61,7 @@ public abstract class RogueClass : Player {
         int start = 5;
         ConsoleKey key;
 
-        // Always rebuild grouped list each loop
+        // Always rebuild 
         do
         {
             var grouped = GetGroupedItems();
@@ -164,9 +164,10 @@ public abstract class RogueClass : Player {
                 Console.Write($"│ {(selected ? ">" : " ")} ");
 
                 // draw icon
-                Console.ForegroundColor = item.Color;
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write(icon);
                 Console.ResetColor();
+
 
                 // fixed padding
                 string namePart = $"{item.Name} x{item.Count}";

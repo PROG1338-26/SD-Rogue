@@ -104,7 +104,9 @@ class Program
 
                         var Player = RogueFactory.Create(classChoice);
                         if (Player is RogueClass rc)
-                            AnsiConsole.MarkupLine($"Selected: [green]{rc.Name}[/] - {rc.Description} - {rc.HUD}");
+                            AnsiConsole.MarkupLine(
+                                $"Selected: [green]{Markup.Escape(rc.Name)}[/] - {Markup.Escape(rc.Description)} - {Markup.Escape(rc.HUD)}"
+                            );
                         else
                             AnsiConsole.MarkupLine($"Selected: [green]{Player.Name}[/] - {Player.HUD}");
                         AnsiConsole.MarkupLine("Press any key to go back.");

@@ -257,11 +257,6 @@ public class Level : Scene
             tilesToDraw.UnionWith(_inFov);
 
         disp.fDraw(tilesToDraw, _map, ConsoleColor.Gray);
-        disp.Draw(_player!.Glyph, _player!.Pos, ConsoleColor.Cyan);
-        var rng = new Random();
-        if (_player.Turn % 5 == 0)
-            _player._color = (ConsoleColor)rng.Next(10, 16);
-
         _player!.Draw(disp);
 
         drawItems(disp);
