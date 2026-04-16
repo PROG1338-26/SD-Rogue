@@ -51,7 +51,6 @@ public class Level : Scene {
       _game       = game;
       _items      = new List<Item>();
       _enemies = new List<Enemy>();
-      _message = "";
 
       initMapTileSets(map);
       updateDiscovered();

@@ -10,6 +10,7 @@ public abstract class Enemy : IDrawable
    public Vector2 Pos { get; set; }
    public char Glyph { get; init; }
 
+   
    public int Health { get; set; } = 12;
 
    public string Name { get; init; }
