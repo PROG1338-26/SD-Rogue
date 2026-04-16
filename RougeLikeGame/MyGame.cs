@@ -31,7 +31,7 @@ public class MyGame : Game {
    // string to use as the backgound on our first level
    // ----------------------------------------------------------------
 
-   public const string map1 =
+   public const string map1 = 
       """
 
                ┌──────┐          ┌─────────────┐

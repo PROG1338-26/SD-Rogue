@@ -1,6 +1,8 @@
 using RogueLib.Dungeon;
 using RogueLib.Engine;
 using RogueLib.Utilities;
+using SandBox01.Levels;
+using System.Xml.Serialization;
 using TileSet = System.Collections.Generic.HashSet<RogueLib.Utilities.Vector2>;
 
 namespace RlGameNS;
@@ -36,19 +38,35 @@ public class Level : Scene {
    protected TileSet _discovered; // tiles the player has seen
    protected TileSet _inFov;      // current fov of player
 
-   public Level(Player p, string map, Game game) {
+    protected List<Item> _items; // items on the level
+
+    public Level(Player p, string map, Game game) {
       if (game == null || p == null || map == null)
          throw new ArgumentNullException("game, player, or map cannot be null");
 
       _player     = p;
       _player.Pos = new Vector2(4, 12); // random, or at stairs
       _map        = map;
-      _game       = _game;
+      _game       = game;
+      _items      = new List<Item>();
 
       initMapTileSets(map);
       updateDiscovered();
       registerCommandsWithScene();
+      SpreadGold();
    }
+
+    private void SpreadGold() {
+
+        var rng = new Random();
+        var hm = rng.Next(10, 20);
+        for (int i=0; i <hm; i++)
+        {
+            var pos = _floor.ElementAt(rng.Next(_floor.Count));
+            _items.Add(new Gold( pos, rng.Next(100, 200)));
+        }
+       
+    } 
 
    protected void updateDiscovered() {
       _inFov = fovCalc(_player!.Pos, _senseRadius);
@@ -64,7 +82,16 @@ public class Level : Scene {
 
    // -----------------------------------------------------------------------
    public override void Update() {
-      _player!.Update();
+
+        updateDiscovered();
+        //is the player standing on an item
+        var item = _items.Find(i => i.Pos == _player!.Pos);
+
+        if (item is not null && item is Gold gold)
+            _player!._gold += gold.Amount;
+
+
+        _player!.Update();
       // foreach item update
       // foreach NPC update 
       // check for player death -- on death build RIP message
@@ -77,14 +104,16 @@ public class Level : Scene {
       tilesToDraw.UnionWith(_inFov);
 
       disp.fDraw(tilesToDraw, _map, ConsoleColor.Gray);
-
-      var rng = new Random();
+        
+        drawItems(disp);
+      
+        var rng = new Random();
       if (_player.Turn % 5 == 0)
          _player._color = (ConsoleColor)rng.Next(10, 16);
       _player!.Draw(disp);
       // disp.Draw(_player!.Glyph, _player!.Pos, ConsoleColor.Cyan);
 
-      drawItems(disp);
+      
       drawEnemies(disp);
       disp.Draw(_player.HUD, new Vector2(0, 24), ConsoleColor.Green);
    }
@@ -107,7 +136,15 @@ public class Level : Scene {
 
 // -------------------------------------------------------------------------
 
-   private void drawItems(IRenderWindow disp) { }
+
+   private void drawItems(IRenderWindow disp) { 
+    
+
+        foreach (var item in _items) {
+            if(_discovered.Contains(item.Pos))
+        disp.Draw(item.Glyph, item.Pos, ConsoleColor.Yellow);
+        }
+    }
 
    private void drawEnemies(IRenderWindow disp) { }
 
@@ -164,11 +201,11 @@ public class Level : Scene {
       RegisterCommand(ConsoleKey.S, "down");
       RegisterCommand(ConsoleKey.J, "down");
 
-      RegisterCommand(ConsoleKey.DownArrow, "left");
+      RegisterCommand(ConsoleKey.LeftArrow, "left");
       RegisterCommand(ConsoleKey.A, "left");
       RegisterCommand(ConsoleKey.H, "left");
 
-      RegisterCommand(ConsoleKey.DownArrow, "right");
+      RegisterCommand(ConsoleKey.RightArrow, "right");
       RegisterCommand(ConsoleKey.D, "right");
       RegisterCommand(ConsoleKey.L, "right");
 
