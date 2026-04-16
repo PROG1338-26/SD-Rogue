@@ -1,10 +1,4 @@
 
-<<<<<<< HEAD
-public class Rogue : Player {
-   
-}
-//to main
-=======
 using RogueLib.Dungeon;
 using RogueLib.Engine;
 using System.Text.RegularExpressions;
@@ -243,4 +237,3 @@ public static class RogueFactory {
         };
     }
 }
->>>>>>> cole
