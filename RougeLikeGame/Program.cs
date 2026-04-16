@@ -26,7 +26,7 @@ class Program
             string userChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
                                 .Title("\nMain menu:")
                                 .AddChoices(
-                                    "0) Continue Game:",
+                                    "(0) Continue Game:",
                                     "(1) New Game:",
                                     "(2) Load Game:",
                                     "(3) Characters:",
@@ -39,7 +39,7 @@ class Program
 
             switch (userChoice)
             {
-                case "0) Continue Game:":
+                case "(0) Continue Game:":
                     var savePath = "save.json";
                     LoadGame loader = new LoadGame();
                     if (!File.Exists(savePath))
