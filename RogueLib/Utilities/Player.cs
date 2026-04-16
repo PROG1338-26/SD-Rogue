@@ -1,5 +1,6 @@
 using RogueLib.Dungeon;
 using RogueLib.Utilities;
+using System.Drawing;
 
 public abstract class Player : IActor, IDrawable {
    public string       Name { get; set; }
@@ -39,16 +40,21 @@ public abstract class Player : IActor, IDrawable {
    public virtual void Draw(IRenderWindow disp) {
       disp.Draw(Glyph, Pos, _color);
    }
-
+    // Author: Joshua Watson
     public List<string> Messages { get; private set; } = new();
+    public List<ConsoleColor> MessageColors = new();
+
 
     // Add a message to the player's message list
-    public void AddMessage(string msg)
+    public void AddMessage(string msg, ConsoleColor color)
     {
         Messages.Add(msg);
+        MessageColors.Add(color);
 
-        // keep only last 5 messages (or whatever you want)
-        if (Messages.Count > 5)
+        if (Messages.Count > 1)
+        {
             Messages.RemoveAt(0);
+            MessageColors.RemoveAt(0);
+        }
     }
 }

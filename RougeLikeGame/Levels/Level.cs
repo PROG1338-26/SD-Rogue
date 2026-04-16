@@ -1,6 +1,7 @@
 using RogueLib.Dungeon;
 using RogueLib.Engine;
 using RogueLib.Utilities;
+using System.Drawing;
 using SandBox01;
 using TileSet = System.Collections.Generic.HashSet<RogueLib.Utilities.Vector2>;
 
@@ -88,8 +89,25 @@ public class Level : Scene {
         if (item is not null && item is Gold gold)
         {
             _player!._gold += gold.Amount;
+            // Author: Joshua Watson
             _items.Remove(item); // Remove the item from the level after picking it up
-            _player.AddMessage($"You pick up {gold.Amount} gold.");
+            if (gold.Amount >= 150)
+            {
+                _player.AddMessage(
+                    $"You pick up a large pile of {gold.Amount} gold.", ConsoleColor.DarkYellow);
+            }
+            else if (gold.Amount >= 120)
+            {
+                _player.AddMessage(
+                    $"You pick up a medium pile of {gold.Amount} gold.", ConsoleColor.DarkYellow);
+            }
+            else
+            {
+                _player.AddMessage(
+                    $"You pick up a small pile of {gold.Amount} gold.", ConsoleColor.DarkYellow);
+            }
+
+
         }
 
         _player!.Update();
@@ -118,13 +136,15 @@ public class Level : Scene {
       drawEnemies(disp);
         // Author: Joshua Watson
         // Draw player messages and HUD
-        int line = 22; 
-      foreach (var msg in _player.Messages)
-      {
-          disp.Draw(msg, new Vector2(0, line), ConsoleColor.White);
-          line++;
-      }
-        disp.Draw(_player.HUD, new Vector2(0, 21), ConsoleColor.Green);
+        int line = 23;
+        for (int i = 0; i < _player.Messages.Count; i++)
+        {
+            disp.Draw(_player.Messages[i], new Vector2(0, line), _player.MessageColors[i]);
+            line++;
+        }
+
+
+        disp.Draw(_player.HUD, new Vector2(0, 24), ConsoleColor.Green);
    }
 
    public override void DoCommand(Command command) {
