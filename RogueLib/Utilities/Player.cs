@@ -50,6 +50,12 @@ public abstract class Player : IActor, IDrawable, IDamageable {
    public void TakeDamage(int damage)
    {
       _hp -= damage;
+      if(_hp == 0)
+      {
+         Console.Clear();
+         Console.WriteLine("Game Over");
+         return;
+      }
    }
 
 

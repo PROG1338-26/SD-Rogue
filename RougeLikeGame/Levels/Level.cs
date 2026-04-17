@@ -246,11 +246,11 @@ public class Level : Scene {
          if (newPos == enemy.Pos && enemy.IsAlive)
          {
             enemy.TakeDamage(_player.Attack());
-            //if (enemy.IsAlive)
-            //{
-            //   _player.TakeDamage(enemy.Attack());
-            //}
-            if(enemy.Health == 0)
+            if (enemy.IsAlive == true)
+            {
+               _player.TakeDamage(enemy.Attack());
+            }
+            if (enemy.Health == 0)
             {
                enemy.IsAlive = false;
             }
