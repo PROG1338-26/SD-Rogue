@@ -5,15 +5,19 @@ using System.Collections;
 public abstract class Player : IActor, IDrawable {
    public string       Name { get; set; }
    public Vector2      Pos;
-   public int Gold {  get; set; }
+   public int          Gold {  get; set; }
    public char         Glyph => '@';
    public ConsoleColor _color = ConsoleColor.White;
 
-   //Expose strength for attacking
-   public int AttackPower => _str;
+    //Inventory property (Diogo)
+    public Inventory Inventory { get; set; }
 
-   //Helper property to check if player is dead
-   public bool IsAlive => _hp > 0;
+    //Expose strength for attacking
+    //AttackPower now includes base strength + accumulated weapon bonus
+    public int AttackPower => _str + Inventory.GetWeaponBonus();
+
+    //Helper property to check if player is dead
+    public bool IsAlive => _hp > 0;
 
    //Start at level 1
    protected int _level = 1;
@@ -34,12 +38,14 @@ public abstract class Player : IActor, IDrawable {
    public Player() {
       Name = "Rogue";
       Pos  = Vector2.Zero;
-   }
+      Inventory = new Inventory(); // Initialize inventory
+    }
 
-   public string HUD =>
-      $"Level:{_level}  Gold: {_gold}    Hp: {_hp}({_maxHp})" +
-      $"  Str: {_str}({_maxStr})" +
-      $"  Arm: {_arm}   Exp: {_exp}/{10} Turn: {_turn}";
+    // MERGED: HUD shows the dynamically calculated AttackPower
+    public string HUD =>
+       $"Level:{_level}  Gold: {_gold}    Hp: {_hp}({_maxHp})" +
+       $"  Str: {AttackPower}({_maxStr})" +
+       $"  Arm: {_arm}   Exp: {_exp}/{10} Turn: {_turn}";
 
 
     //Method to handle taking damage from enemies, it returns the integer damage dealt

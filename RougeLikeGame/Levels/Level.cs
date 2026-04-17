@@ -49,6 +49,9 @@ public class Level : Scene {
     protected List<string> _messageLog = new List<string>();
     protected bool _isGameOver = false;
 
+    //Tracking inventory screen state
+    protected bool _showInventory = false;
+
     public Level(Player p, string map, Game game) {
       if (game == null || p == null || map == null)
          throw new ArgumentNullException("game, player, or map cannot be null");
@@ -70,6 +73,10 @@ public class Level : Scene {
       registerCommandsWithScene();
       spreadGold();
       spawnEnemies(); // Call the spawn method
+
+      // Spawn the new items
+      spreadWeapons();
+      spreadHealingPotions();
     }
 
     //Helper method to add messages to the screen
@@ -117,7 +124,37 @@ public class Level : Scene {
         }
    }
 
-   protected void updateDiscovered() {
+
+    // Weapon logic
+    private void spreadWeapons()
+    {
+        var rng = new Random();
+        int howMany = rng.Next(2, 5);
+        string[] weaponNames = { "Dagger", "Sword", "Axe" };
+        int[] weaponBonuses = { 1, 3, 5 };
+
+        for (int i = 0; i < howMany; i++)
+        {
+            var pos = _floor.ElementAt(rng.Next(_floor.Count));
+            int index = rng.Next(weaponNames.Length);
+            _items.Add(new Weapon(weaponNames[index], weaponBonuses[index], pos));
+        }
+    }
+
+    // Potion logic
+    private void spreadHealingPotions()
+    {
+        var rng = new Random();
+        int howMany = rng.Next(2, 5);
+        for (int i = 0; i < howMany; i++)
+        {
+            var pos = _floor.ElementAt(rng.Next(_floor.Count));
+            _items.Add(new HealingPotion(pos, 5));
+        }
+    }
+
+
+    protected void updateDiscovered() {
       _inFov = fovCalc(_player!.Pos, _senseRadius);
 
       if (_discovered is null)
@@ -134,19 +171,34 @@ public class Level : Scene {
 
     public override void Update()
     {
-        // Stop updating if the player is dead
-        if (_isGameOver) return;
+        // Don't update game logic if dead or looking at inventory
+        if (_isGameOver || _showInventory) return; 
 
         updateDiscovered();
 
         // Check if the player is standing on an item
+        // Check for item pickups and add them to the correct system
         var item = _items.Find(i => i.Pos == _player!.Pos);
-        if (item is not null && item is Gold gold)
+        if (item is not null)
         {
-            _player!._gold += gold.Amount;
-            Log($"You picked up {gold.Amount} gold."); // Log pickups!
-            //Remove the item from the list so it is no longer updated or drawn
-            _items.Remove(item);
+            if (item is Gold gold)
+            {
+                _player!._gold += gold.Amount;
+                Log($"You picked up {gold.Amount} gold.");
+                _items.Remove(item);
+            }
+            else if (item is Weapon weapon)
+            {
+                _player!.Inventory.AddWeapon(weapon);
+                Log($"You picked up a {weapon.Name} (+{weapon.BonusStrength} Str).");
+                _items.Remove(item);
+            }
+            else if (item is HealingPotion potion)
+            {
+                _player!.Inventory.AddHealingPotion();
+                Log($"You picked up a Healing Potion.");
+                _items.Remove(item);
+            }
         }
 
         _player!.Update();
@@ -175,6 +227,28 @@ public class Level : Scene {
 
     public override void Draw(IRenderWindow? disp)
     {
+        // NEW: Draw the Inventory overlay if active
+        if (_showInventory)
+        {
+            // Clear screen with empty spaces
+            for (int y = 0; y < 25; y++)
+            {
+                disp.Draw(new string(' ', 78), new Vector2(0, y), ConsoleColor.Black);
+            }
+
+            disp.Draw("=== INVENTORY ===", new Vector2(2, 2), ConsoleColor.White);
+
+            // Draw inventory line by line safely
+            var lines = _player.Inventory.GetDisplayText(_player).Split('\n');
+            for (int i = 0; i < lines.Length; i++)
+            {
+                disp.Draw(lines[i].TrimEnd('\r'), new Vector2(2, 4 + i), ConsoleColor.White);
+            }
+
+            disp.Draw("Press 'I' to return to the map", new Vector2(2, 22), ConsoleColor.DarkGray);
+            return; // Skip drawing the dungeon
+        }
+
         // using custom RenderWindow, cast to my RenderWindow
         var tilesToDraw = new TileSet(_decor);
         tilesToDraw.IntersectWith(_discovered);
@@ -206,6 +280,16 @@ public class Level : Scene {
 
     public override void DoCommand(Command command)
     {
+        //Handle toggling the inventory screen
+        if (command.Name == "inventory")
+        {
+            _showInventory = !_showInventory;
+            return;
+        }
+
+        // Prevent movement while the menu is open
+        if (_showInventory) return;
+
         //If game is over, intercept all commands except quit
         if (_isGameOver)
         {
@@ -227,7 +311,12 @@ public class Level : Scene {
         foreach (var item in _items)
         {
             if (_discovered.Contains(item.Pos))
-                disp.Draw(item.Glyph, item.Pos, ConsoleColor.Yellow);
+            {
+                //Delegate drawing to the items themselves, or fallback to Gold logic
+                if (item is Gold) disp.Draw(item.Glyph, item.Pos, ConsoleColor.Yellow);
+                else if (item is Weapon weapon) weapon.Draw(disp);
+                else if (item is HealingPotion potion) potion.Draw(disp);
+            }
         }
     }
 
@@ -245,7 +334,6 @@ public class Level : Scene {
     }
 
     private void initMapTileSets(string map) {
-      var lines = map.Split('\n');
 
       // ------ rules for map ------
       // . - floor, walkable and transparent.
@@ -268,19 +356,6 @@ public class Level : Scene {
       }
 
       _walkables = _floor.Union(_tunnel).Union(_door).ToHashSet();
-
-//      for (int row = 0; row < lines.Length; ++row) {
-//         for (int col = 0; col < lines[row].Length; ++col) {
-//            char tile = lines[row][col];
-//
-//            if (tile == '.' || tile == '+' || tile == '#') {
-//               _walkables.Add(new Vector2(col, row));
-//               _decor.Add(new Vector2(col, row));
-//            } else if (tile != ' ') {
-//               _decor.Add(new Vector2(col, row));
-//            }
-//         }
-//      }
    }
 
     // ------------------------------------------------------
@@ -307,6 +382,9 @@ public class Level : Scene {
         RegisterCommand(ConsoleKey.RightArrow, "right");
         RegisterCommand(ConsoleKey.D, "right");
         RegisterCommand(ConsoleKey.L, "right");
+
+        // 'I' key to the "inventory" command
+        RegisterCommand(ConsoleKey.I, "inventory");
 
         RegisterCommand(ConsoleKey.Q, "quit");
     }
