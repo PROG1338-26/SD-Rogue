@@ -14,7 +14,7 @@ public abstract class Player : IActor, IDrawable, IDamageable
     public Inventory Inventory { get; set; }
 
     protected int _level = 0;
-    protected int _hp = 12;
+    protected int _hp = 30;
     protected int _str = 16;
     protected int _arm = 4;
     protected int _exp = 0;
@@ -23,13 +23,14 @@ public abstract class Player : IActor, IDrawable, IDamageable
     protected int _maxHp = 12;
     protected int _maxStr = 16;
     protected int _turn = 0;
-    protected int _attackPower = 4;
     protected bool _isAlive = true;
 
-   public int Turn => _turn;
+    public int Turn => _turn;
 
     // Strength total agora inclui bonus acumulado das weapons
-    public int TotalStrength => _str + Inventory.GetWeaponBonus();
+    private int TotalStrength => _str + Inventory.GetWeaponBonus();
+
+    
 
     public Player()
     {
@@ -44,8 +45,26 @@ public abstract class Player : IActor, IDrawable, IDamageable
       $"  Str: {_str}({_maxStr})" +
       $"  Arm: {_arm}   Exp: {_exp}/{10} Turn: {_turn}";
 
+   public void Heal(int amount)
+   {
+      _hp += amount;
+      if (_hp > _maxHp)
+      {
+         _hp = _maxHp;
+      }
+   }
 
-    public virtual void Update()
+   public bool UseHealingPotion()
+   {
+      if (Inventory.UseHealingPotion())
+      {
+         Heal(5);
+         return true;
+      }
+      return false;
+   }
+
+   public virtual void Update()
     {
         _turn++;
     }
@@ -75,7 +94,7 @@ public abstract class Player : IActor, IDrawable, IDamageable
 
    public int Attack()
    {
-      return _attackPower;
+      return TotalStrength;
    }
 
    public void TakeDamage(int damage)
@@ -88,5 +107,7 @@ public abstract class Player : IActor, IDrawable, IDamageable
          return;
       }
    }
+
+
 
 }
