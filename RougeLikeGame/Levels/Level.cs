@@ -52,6 +52,9 @@ public class Level : Scene {
     //Tracking inventory screen state
     protected bool _showInventory = false;
 
+    private Vector2 _exitPos;
+    private bool _hasWon = false;
+
     public Level(Player p, string map, Game game) {
       if (game == null || p == null || map == null)
          throw new ArgumentNullException("game, player, or map cannot be null");
@@ -172,9 +175,17 @@ public class Level : Scene {
     public override void Update()
     {
         // Don't update game logic if dead or looking at inventory
-        if (_isGameOver || _showInventory) return; 
+        if (_isGameOver || _showInventory || _hasWon) return; 
 
         updateDiscovered();
+
+        // Check for Victory
+        if (_player!.Pos == _exitPos)
+        {
+            _hasWon = true;
+            Log("Level completed.");
+            return;
+        }
 
         // Check if the player is standing on an item
         // Check for item pickups and add them to the correct system
@@ -227,13 +238,33 @@ public class Level : Scene {
 
     public override void Draw(IRenderWindow? disp)
     {
-        // FIX: Clear the entire buffer at the start of every frame
-        // This prevents old screens (like the inventory) from "sticking"
+        //Clear the entire buffer(keeps the screen clean)
         for (int y = 0; y < 25; y++)
         {
             disp.Draw(new string(' ', 78), new Vector2(0, y), ConsoleColor.Black);
         }
 
+        //Victory Screen - If the player won, show ONLY the victory message
+        if (_hasWon)
+        {
+            disp.Draw("*************************************", new Vector2(20, 10), ConsoleColor.Cyan);
+            disp.Draw("* YOU ESCAPED! YOU WIN!       *", new Vector2(20, 11), ConsoleColor.Cyan);
+            disp.Draw("* Press 'Q' to exit the game.    *", new Vector2(20, 12), ConsoleColor.Gray);
+            disp.Draw("*************************************", new Vector2(20, 13), ConsoleColor.Cyan);
+            return; // Stop drawing here so the map doesn't show up
+        }
+
+        //Game Over Screen - If the player died, show ONLY the RIP message
+        if (_isGameOver)
+        {
+            disp.Draw("#####################################", new Vector2(20, 10), ConsoleColor.Red);
+            disp.Draw("#      YOU HAVE DIED IN THE DARK    #", new Vector2(20, 11), ConsoleColor.Red);
+            disp.Draw("#    Press 'Q' to exit the game.    #", new Vector2(20, 12), ConsoleColor.Gray);
+            disp.Draw("#####################################", new Vector2(20, 13), ConsoleColor.Red);
+            return; // Stop drawing here
+        }
+
+        // Inventory Screen
         if (_showInventory)
         {
             // We no longer need the clear loop here because it's done above
@@ -255,6 +286,13 @@ public class Level : Scene {
         tilesToDraw.UnionWith(_inFov);
 
         disp.fDraw(tilesToDraw, _map, ConsoleColor.Gray);
+
+
+        // Explicitly draw the exit if discovered
+        if (_discovered.Contains(_exitPos))
+        {
+            disp.Draw('>', _exitPos, ConsoleColor.Cyan);
+        }
 
         drawItems(disp);
 
@@ -300,6 +338,13 @@ public class Level : Scene {
             {
                 Log("You don't have any healing potions!");
             }
+            return;
+        }
+
+        //If the game is over OR won, allow quitting but block movement
+        if (_isGameOver || _hasWon)
+        {
+            if (command.Name == "quit") _levelActive = false;
             return;
         }
 
@@ -369,6 +414,10 @@ public class Level : Scene {
          if (c == '.') _floor.Add(p);
          else if (c == '+') _door.Add(p);
          else if (c == '#') _tunnel.Add(p);
+         else if (c == '>') { // Recognize the exit
+            _exitPos = p;
+            _floor.Add(p); // Make it walkable like a floor
+         }
          else if (c != ' ') _decor.Add(p);
       }
 
