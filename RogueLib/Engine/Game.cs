@@ -13,6 +13,7 @@ namespace RogueLib.Engine;
 // ------------------------------------------------------- 
 
 public class Game {
+    
    // fixed size grid
    public const int width  = 78;
    public const int height = 25;
@@ -21,8 +22,8 @@ public class Game {
    protected bool           _isQuit;
    protected IRenderWindow? _window;
    protected Player?        _player;
-
-   public Game() {
+   public IRenderWindow Window => _window;
+    public Game() {
       _isQuit = false;
    }
 
@@ -49,11 +50,18 @@ public class Game {
          _currentLevel!.Update();
       }
    }
+    private class CommandQueue<T> {
+        
+    }
 
-
-   protected virtual void HandleUserInput() {
-      ConsoleKeyInfo key = Console.ReadKey(true);
+    protected virtual void HandleUserInput() {
+        if (_currentLevel == null)
+            return;
+        ConsoleKeyInfo key = Console.ReadKey(true);
       if (_currentLevel!.HasCommand(key.Key))
          _currentLevel!.DoCommand(new Command(_currentLevel!.GetCommand(key.Key)));
    }
+   public virtual void SaveToFile(string path) { }
+
+
 }

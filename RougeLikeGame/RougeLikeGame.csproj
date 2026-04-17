@@ -9,7 +9,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Spectre.Console" Version="0.55.0" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\RogueLib\RogueLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="SandBox01\" />
     </ItemGroup>
 
 </Project>

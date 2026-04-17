@@ -4,7 +4,10 @@ using FilterSet = System.Collections.Generic.HashSet<RogueLib.Utilities.Vector2>
 namespace RogueLib.Dungeon;
 
 public interface IRenderWindow {
-   void Draw(string s,     ConsoleColor color);
+    int Height { get; }
+    int Width { get; }
+
+    void Draw(string s,     ConsoleColor color);
    void Draw(string s,     Vector2      offset, ConsoleColor color);
    void Draw(char   glyph, Vector2      pos,    ConsoleColor color);
 

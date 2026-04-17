@@ -1,39 +1,70 @@
-using RogueLib.Dungeon;
+using RlGameNS;
 using RogueLib.Engine;
 using RogueLib.Utilities;
+using System.IO;
+using System.Text.Json;
 
-namespace RlGameNS;
+namespace SandBox01;
 
+public class MyGame : Game
+{
+    private Player _playerRef;
 
-public class MyGame : Game {
-   
-   private void init() {
-      // To create a new game just need to 
-      // 'inject' an IRenderWindow to draw the game one
-      // 'inject' a Player, the player lives outside or the Scene's because the 
-      // player visits all the scenes and takes their inventory with them. 
-      // you must load the first leveel, and your level or your game must manage 
-      // the level switching. 
-      
-      _window       = new ScreenBuff();
-      _player       = new Rogue();
-      _currentLevel = new Level(_player, map1, this);
-      
-   }
+    public MyGame(Player p)
+    {
+        Init(p);
+    }
 
-   public MyGame() {
-      // init level on construction 
-      init();
-   }
+    public MyGame()
+    {
+        Init();
+    }
 
-   
-   // ----------------------------------------------------------------
-   // string to use as the backgound on our first level
-   // ----------------------------------------------------------------
+    private void Init(Player? chosenPlayer = null)
+    {
+        _window = new ScreenBuff();
 
-   public const string map1 =
-      """
+        if (chosenPlayer != null)
+            _playerRef = chosenPlayer;
+        else
+            throw new Exception("Player must be provided.");
 
+        _player = _playerRef;
+        _currentLevel = new RlGameNS.Level(_playerRef, map1, this, _window);
+    }
+
+    public override void SaveToFile(string path)
+    {
+        SaveData data = new SaveData
+        {
+            PlayerClass = _playerRef.RogueClass ?? "Rogue",
+            PlayerName = _playerRef.Name,
+            PlayerX = _playerRef.Pos.X,
+            PlayerY = _playerRef.Pos.Y,
+            HP = _playerRef.HP,
+            MaxHP = _playerRef.MaxHP,
+            Mana = _playerRef.Mana,
+            MaxMana = _playerRef.MaxMana,
+            Strength = _playerRef.BaseStrength,
+            Armour = _playerRef.Armour,
+            Exp = _playerRef.Exp,
+            Gold = _playerRef.Gold,
+            Level = _playerRef.LevelNumber,
+            Turn = _playerRef.Turn
+        };
+
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        File.WriteAllText(path, json);
+    }
+
+    public const string blanks = "";
+
+    public const string map1 =
+       """
                ┌──────┐          ┌─────────────┐
                │......│        ##+.............│            ┌───────┐
                │......│        # │.............+##          │.......│
@@ -56,7 +87,5 @@ public class MyGame : Game {
              #             # |.......................+####
              #             # └───────────────────────┘
              ###############
-             
-             
       """;
 }
