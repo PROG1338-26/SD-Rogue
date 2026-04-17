@@ -56,6 +56,7 @@ public class Level : Scene
       _items = new List<Item>();
       _enemies = new List<Enemy>();
 
+
       initMapTileSets(map);
       updateDiscovered();
       registerCommandsWithScene();
@@ -68,13 +69,12 @@ public class Level : Scene
    private void spreadEnemies()
    {
       var rng = new Random();
-      var hm = rng.Next(1, 5);
+       
+      var pos1 = _floor.ElementAt(rng.Next(_floor.Count));
+      _enemies.Add(new Goblin(pos1));
 
-
-      var pos = _floor.ElementAt(rng.Next(_floor.Count));
-      _enemies.Add(new Goblin(pos));
-      _enemies.Add(new Orc(pos));
-      _enemies.Add(new Goblin(pos));
+      var pos2 = _floor.ElementAt(rng.Next(_floor.Count));
+      _enemies.Add(new Orc(pos2));
 
    }
    private void spreadGold()
